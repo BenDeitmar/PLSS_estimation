@@ -20,24 +20,25 @@ if __name__ == "__main__":
     ExampleNumber=2
     K = None
     a,b=-np.inf,np.inf
-    if 0: #Figure 6a
-        z = 0.5+0.05j
+
+    if 1: #Figure 6a
+        z = -1+0.05j
         g = lambda lam: 1/(lam-z)
         g_name='Stieltjes_a'
         resolution=1/100
-        ToCompare = {'LedoitWolf', 'ElKaroui'}
-    if 1: #Figure 6b
-        z = 2+0.1j
+        ToCompare = {'LedoitWolf', 'ElKaroui','MPI'}
+    if 0: #Figure 6b
+        z = -0.5+0.1j
         g = lambda lam: 1/(lam-z)
         g_name='Stieltjes_b'
         resolution=1/100
         ToCompare = {'LedoitWolf', 'ElKaroui'}
     if 0: #Figure 6c
-        z = 3.3+0.1j
+        z = 0+0.1j
         g = lambda lam: 1/(lam-z)
         g_name='Stieltjes_c'
         resolution=1/100
-        ToCompare = {'LedoitWolf', 'ElKaroui','MPI'}
+        ToCompare = {'LedoitWolf', 'ElKaroui'}
     ###################
 
     

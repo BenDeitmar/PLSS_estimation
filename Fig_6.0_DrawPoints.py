@@ -25,10 +25,10 @@ VisualizeHSpace(Y,tau=tau,kappa=kappa,resolution=resolution,PopEV=PopEV,CurveMod
 #ax.annotate(r'$z_2$',(1.73,0.12), fontsize=35, textcoords='data')
 #ax.annotate(r'$z_3$',(2.93,0.12), fontsize=35, textcoords='data')
 
-ax.scatter([1,2,3.3],[0.1,0.1,0.1],color='red')
-ax.annotate(r'$z_1$',(1.03,0.12), fontsize=35, textcoords='data')
-ax.annotate(r'$z_2$',(2.03,0.12), fontsize=35, textcoords='data')
-ax.annotate(r'$z_3$',(3.33,0.12), fontsize=35, textcoords='data')
+ax.scatter([0,-0.5,-1],[0.1,0.1,0.1],color='red')
+ax.annotate(r'$z_3$',(0.03,0.12), fontsize=35, textcoords='data')
+ax.annotate(r'$z_2$',(-0.5+0.03,0.12), fontsize=35, textcoords='data')
+ax.annotate(r'$z_1$',(-1+0.03,0.12), fontsize=35, textcoords='data')
 
 plt.tight_layout()
 plt.show()
