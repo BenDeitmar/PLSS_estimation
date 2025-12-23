@@ -1,7 +1,7 @@
 import numpy as np
 from math import ceil
 
-from Visualization import ErrorContours, PopEV_Y_maker
+from VisualizationTools import ErrorContours, PopEV_Y_maker
 
 ######################
 c = 1/20

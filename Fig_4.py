@@ -1,7 +1,7 @@
 import numpy as np
 from math import ceil
 
-from Visualization import VisualizeHSpace, PopEV_Y_maker
+from VisualizationTools import VisualizeHSpace, PopEV_Y_maker
 
 
 ######################

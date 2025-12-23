@@ -1,5 +1,6 @@
 import numpy as np
 from math import ceil, sqrt, pi
+from scipy.stats import norm
 
 
 # vectorwise algorithm for the population Stieltjes transform estimator as in Definition 1.5
@@ -161,13 +162,17 @@ def PLSS_estimator_FullSpectrum(Y,g,tau=0.01,kappa=np.inf,resolution=10**(-2),Sa
     return Lg
 
 
-def PLSS_InferMean(Y,g,tau=0.01,kappa=np.inf,giveVariance=False,singualrityAtZero=False,PopEV=None):
-    d,n = Y.shape
-    c = d/n
-    S = Y@Y.T/n
-    SampEV,_ = np.linalg.eigh(S)
-    Curves = CurveDiscoveryHSpace(SampEV,c,tau=tau,kappa=kappa)
-    OuterCurve = (Curves[0][0],max([curve[1] for curve in Curves]),Curves[-1][2])
+
+#algorithm to simultaneously calculate the PLSS estimator and estimate the mean and variance given in Corollary 2.9
+def PLSS_InferMean(SampEV,c,g,tau=0.01,kappa=np.inf,giveVariance=False,singualrityAtZero=False,PopEV=None,Curve=None):
+    d = len(SampEV)
+
+    if Curve is None:
+        Curves = CurveDiscoveryHSpace(SampEV,c,tau=tau,kappa=kappa)
+        OuterCurve = (Curves[0][0],max([curve[1] for curve in Curves]),Curves[-1][2])
+    else:
+        OuterCurve = Curve
+
     if singualrityAtZero:
         assert OuterCurve[0]>0
     N = 2*2*ceil(np.sqrt(d))
@@ -234,6 +239,17 @@ def PLSS_InferMean(Y,g,tau=0.01,kappa=np.inf,giveVariance=False,singualrityAtZer
     return estimator, mean
 
 
+
+# algorithm for constructing asymptotic confidence intervals to PLSS (see Subsection 5.3)
+def PLSS_ConfidenceInterval(SampEV,d,n,g,tau=0.01,kappa=np.inf,ConfidenceLevel=0.95,singualrityAtZero=False):
+    c = d/n
+    estimator, mean, variance = PLSS_InferMean(SampEV,c,g,tau=tau,kappa=kappa,giveVariance=True,singualrityAtZero=singualrityAtZero)
+    lower = norm.ppf((1-ConfidenceLevel)/2, loc=np.real(estimator-mean/n), scale=np.sqrt(np.real(variance/n**2)))
+    upper = norm.ppf(1-(1-ConfidenceLevel)/2, loc=np.real(estimator-mean/n), scale=np.sqrt(np.real(variance/n**2)))
+    return (lower,upper)
+
+
+
 # algorithm calculating a log-determinant estimator by the methods introduced here
 # when applicable, calculates an estimator for the log-determinant, 
 #      that is equal to the estimator from https://doi.org/10.1016/j.jmva.2015.02.003 up to an O(1/n^2)-difference
@@ -241,6 +257,7 @@ def LogDet_estimator(Y,tau=0.01,kappa=np.inf,resolution=10**(-2),tz=-100,SampEV=
     d,n = Y.shape
     estimator, mean = PLSS_InferMean(Y,lambda z : np.log(z),tau=tau,kappa=kappa,giveVariance=False,singualrityAtZero=True)
     return estimator-mean/n
+
 
 
 
@@ -313,3 +330,83 @@ def GLSS_estimator(SampEV,c,g,f,g_curves,f_curves,tau=0.01,kappa=np.inf):
 
 
 
+
+
+
+
+
+
+
+
+
+if __name__ == "__main__":
+
+######################
+    #hyperparameters
+
+    #dimension and quotient c=d/n
+    d = 100
+    c = 1/10
+
+    #population eigenvalues
+    #PopEV = np.array([0.5 for i in range(d//2)]+[1.5 for i in range(d-d//2)])
+    PopEV = np.array([0.5 for i in range(d-10)]+[1.5 for i in range(10)])
+    #PopEV = np.random.exponential(0.5,size=d)
+
+    #resolution
+    delta = 0.01
+######################
+
+    n = ceil(d/c)
+
+    T = np.matrix(np.diag(np.sqrt(PopEV)))
+    Y_matr = np.random.normal(size=(d,n))
+    X_matr = T@Y_matr
+    S_matr = X_matr@X_matr.H/n
+    SampEV,U = np.linalg.eigh(S_matr)
+    U = np.matrix(U)
+    V = np.matrix(np.eye(d))
+
+    #VisualizeHNuSpace(X_matr,resolution=delta)
+
+    #plt.tight_layout()
+    #plt.show()
+
+    u1 = U[-1,:]
+
+    v1 = np.zeros(d)
+    v1[-1]=1
+    l = 3
+    #print(np.abs(u1@v1.T)**2,(1-c/(l-1)**2)/(1+c/(l-1)))
+
+    CurveListHspace = np.array(CurveDiscoveryHSpace(SampEV,c))#,tau=0.01,kappa=20,resolution=0.01)
+    CurveListNuspace = CurveList = np.array(CurveDiscoveryNuSpace(SampEV,c))#np.array(CurveDiscoveryNuSpace(SampEV,c,tau=0.06))
+
+    print(CurveListHspace)
+    print(CurveListNuspace)
+
+    gamma_f = CurveListNuspace[-1]
+    gamma_g = CurveListHspace[-1]
+
+    #L,H,R = CurveList[0]
+    #gamma_f = (L-0.1,H+0.1,R+0.1)
+    #L,H,R = CurveList[1]
+    #gamma_g = (L-0.1,H+0.1,R+0.1)
+
+    f = lambda z : 1
+    g = lambda z : 1
+
+    Stil_UlNu = lambda z : np.sum(1/(SampEV-z))/n-(1-c)/z
+    varphi = lambda x: np.real(-1/Stil_UlNu(x+1j*0.01))
+
+    Df = np.diag([f(lam) if (gamma_f[0] < lam and lam < gamma_f[2]) else 0 for lam in SampEV])
+    Dg = np.diag([g(lam) if (gamma_g[0] < lam and lam < gamma_g[2]) else 0 for lam in PopEV])
+
+    #print(np.diag(Df))
+
+    #print(np.diag(Dg))
+
+    Lfg = 1/d*np.trace(U@Df@U.H@V@Dg@V.H)
+
+    Lfg_est = GLSS_estimator(SampEV,c,g,f,[gamma_g],[gamma_f])#,tau=0.01,kappa=20)
+    print(Lfg, Lfg_est)

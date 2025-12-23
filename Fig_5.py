@@ -1,7 +1,7 @@
 import numpy as np
 from math import ceil
 
-from Visualization import IterationContours, PopEV_Y_maker
+from VisualizationTools import IterationContours, PopEV_Y_maker
 
 ######################
 if 0: #Figure 5a
