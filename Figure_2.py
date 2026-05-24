@@ -257,10 +257,10 @@ if __name__ == "__main__":
     d = 200
     PopEV = [1]*(d//2)+[2.5+i/d for i in range(d-d//2)]
     plot_varphi_empirical_grid(
-        atoms=PopEV, weights=[0.5]+[1/NN]*NN,
+        atoms=PopEV, weights=[0.5]+[1/2/NN]*NN,
         d=d, n=10*d, seed=1,
         n_vert=8, n_horz=6,
-        eps_min=etaMin, y_max=2.5,
+        eps_min=etaMin, y_max=1.5,
         left_res=1000,
         # histogram:
         show_hist=True, hist_bins=40, hist_height_frac=0.5, hist_color='lightgray',

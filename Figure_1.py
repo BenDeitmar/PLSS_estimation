@@ -61,7 +61,7 @@ def tighten_window_to_complement(xlim, ylim, comp, X, Y, pad_ratio=0.2):
     ymax += pad_y
     #return (xmin, xmax), (ylim[0], ymax)
     #return (xmin, xmax), (ylim[0], 0.5)
-    return (0, 5), (ylim[0], 2)
+    return (0, 4.25), (ylim[0], 1.75)
 
 # ================== Grid drawing helpers ==================
 def _plot_boundary(ax, X, Y, Phi):
@@ -85,13 +85,13 @@ def _draw_reference_grid_left_only(ax_left, X, Y, D_mask, n_vert=7, n_horz=5, lw
         col_mask = D_mask[:, j]
         for (i0, i1) in _find_segments_on_mask(col_mask):
             z_seg = X[i0:i1+1, j] + 1j*Y[i0:i1+1, j]
-            ax_left.plot(np.real(z_seg), np.imag(z_seg), lw=lw, color='k')
+            ax_left.plot(np.real(z_seg), np.imag(z_seg), lw=lw, color='black')
     ys_idx = np.linspace(0, X.shape[0]-1, n_horz, dtype=int)
     for i in ys_idx:
         row_mask = D_mask[i, :]
         for (j0, j1) in _find_segments_on_mask(row_mask):
             z_seg = X[i, j0:j1+1] + 1j*Y[i, j0:j1+1]
-            ax_left.plot(np.real(z_seg), np.imag(z_seg), lw=lw, color='k')
+            ax_left.plot(np.real(z_seg), np.imag(z_seg), lw=lw, color='black')
 
 def _draw_mapped_grid_right_only(ax_right, X, Y, D_mask, Phi, n_vert=7, n_horz=5, lw=1.6):
     xs_idx = np.linspace(0, X.shape[1]-1, n_vert, dtype=int)
@@ -99,13 +99,13 @@ def _draw_mapped_grid_right_only(ax_right, X, Y, D_mask, Phi, n_vert=7, n_horz=5
         col_mask = D_mask[:, j]
         for (i0, i1) in _find_segments_on_mask(col_mask):
             phi_seg = Phi[i0:i1+1, j]
-            ax_right.plot(np.real(phi_seg), np.imag(phi_seg), lw=lw, color='k')
+            ax_right.plot(np.real(phi_seg), np.imag(phi_seg), lw=lw, color='black')
     ys_idx = np.linspace(0, X.shape[0]-1, n_horz, dtype=int)
     for i in ys_idx:
         row_mask = D_mask[i, :]
         for (j0, j1) in _find_segments_on_mask(row_mask):
             phi_seg = Phi[i, j0:j1+1]
-            ax_right.plot(np.real(phi_seg), np.imag(phi_seg), lw=lw, color='k')
+            ax_right.plot(np.real(phi_seg), np.imag(phi_seg), lw=lw, color='black')
 
 # ================== Densify a contour polyline ==================
 def _densify_polyline(seg_xy, factor=12):
@@ -124,7 +124,7 @@ def _densify_polyline(seg_xy, factor=12):
 
 # ================== Main plotting ==================
 def plot_D_and_image(lambdas, weights, c,
-                     base_half_width=3.0, base_ymax=3.0,
+                     base_half_width=3.0, base_ymax=2.0,
                      res=900, y_eps=1e-3,
                      n_vert_lines=7, n_horz_lines=5):
     # --- Compute domain ---
@@ -197,7 +197,7 @@ def plot_D_and_image(lambdas, weights, c,
 
             # Draw boundary on left
             axL.plot(np.real(z_b), np.imag(z_b),
-                     color=support_color, lw=2.5, zorder=6,
+                     color=support_color, lw=3.5, zorder=6,
                      label=r'$\partial\mathbb{D}_{H,c}(\infty) \cap \mathbb{C}^+$')
 
             # Map boundary -> ν-plane support
@@ -210,7 +210,7 @@ def plot_D_and_image(lambdas, weights, c,
                 continue
             xr.sort()
             axR.plot(xr, np.zeros_like(xr),
-                     color=support_color, lw=3.0, solid_capstyle='round', zorder=6,
+                     color=support_color, lw=4.0, solid_capstyle='round', zorder=6,
                      label=r'$\mathrm{supp}(\nu)$')
 
     # --- Deduplicate legends ---
@@ -234,6 +234,6 @@ def plot_D_and_image(lambdas, weights, c,
 # ---------------- Examples ----------------
 #plot_D_and_image(lambdas=[0.5, 1.0], weights=[0.5, 0.5], c=0.05)
 NN=30
-plot_D_and_image(lambdas=[1]+[2.5+i/2/NN for i in range(NN)], weights=[0.5]+[1/NN]*NN, c=0.1)
+plot_D_and_image(lambdas=[1]+[2.5+i/2/NN for i in range(NN)], weights=[0.5]+[1/2/NN]*NN, c=0.1)
 #plot_D_and_image(lambdas=[0.5, 1.0], weights=[0, 1], c=0.05)
 # plot_D_and_image(lambdas=[1.0, 2.0], weights=[0.5, 0.5], c=0.1)
